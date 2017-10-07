@@ -88,7 +88,7 @@ WSGI_APPLICATION = 'doSelect.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'doSelect',
+        'NAME': 'djangogirls',
         'USER': 'name',
         'PASSWORD': '',
         'HOST': 'localhost',
