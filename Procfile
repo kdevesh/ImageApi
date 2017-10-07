@@ -1,1 +1,1 @@
-web: gunicorn doselect.wsgi --log-file -
+web: gunicorn doSelect.wsgi --log-file -

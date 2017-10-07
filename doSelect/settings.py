@@ -88,16 +88,14 @@ WSGI_APPLICATION = 'doSelect.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'doselect',
-        'USER': 'pjcjvhjcxaovba',
-        'PASSWORD': '2ec80f04c6a9884393272a9af86a1e8cdc24503c375b756dd2b6338b63cda5e4',
-        'HOST': 'ec2-184-73-174-10.compute-1.amazonaws.com',
-        'PORT': '5432',
+        'NAME': 'doSelect',
+        'USER': 'name',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
 
-db_from_env = dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(db_from_env)
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
