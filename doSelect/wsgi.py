@@ -15,4 +15,4 @@ application = DjangoWhiteNoise(application)
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "doSelect.settings")
 
-application = Cling(get_wsgi_application())
+application =get_wsgi_application()
