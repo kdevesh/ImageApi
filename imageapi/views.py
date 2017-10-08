@@ -10,8 +10,16 @@ from django.http import JsonResponse
 
 class ImageInfo(APIView):
     def post(self, request):
+        imageformats=["jpeg","JPEG","jpg","JPG","png","PNG","gif","GIF","bmp","BMP","tiff","TIFF"]
         if 'file' in request.FILES:
             file = request.FILES['file']
+            base,ext=os.path.splitext(file.name)
+            ext=ext[1:]
+            if( not ext in imageformats):
+                content = {
+                "message": "UnSupported/Invalid image format!!"
+                }
+                return JsonResponse(content, status=status.HTTP_400_BAD_REQUEST)
             username = request.user.username
             location = os.path.join(settings.MEDIA_ROOT, username)
             fs = FileSystemStorage(location=location)
@@ -56,13 +64,21 @@ class ImageDetail(APIView):
             return JsonResponse(content,status=status.HTTP_404_NOT_FOUND)
 
     def patch(self, request, img):
+        imageformats=["jpeg","JPEG","jpg","JPG","png","PNG","gif","GIF","bmp","BMP","tiff","TIFF"]
         username = request.user.username
         images = os.listdir(os.path.join(settings.MEDIA_ROOT, username))
         if img in images:
-            path = os.path.join(settings.MEDIA_ROOT, username, img)
-            os.remove(path)
             if 'file' in request.FILES:
                 file = request.FILES['file']
+                base,ext=os.path.splitext(file.name)
+                ext=ext[1:]
+                if( not ext in imageformats):
+                    content = {
+                        "message": "UnSupported/Invalid image format!!"
+                    }
+                    return JsonResponse(content, status=status.HTTP_400_BAD_REQUEST)
+                path = os.path.join(settings.MEDIA_ROOT, username, img)
+                os.remove(path)
                 location = os.path.join(settings.MEDIA_ROOT, username)
                 fs = FileSystemStorage(location=location)
                 filename = fs.save(img, file)
