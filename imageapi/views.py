@@ -6,7 +6,7 @@ from imageapi.renderers import ImageRenderer
 from rest_framework.renderers import JSONRenderer
 import os
 from django.core.files.storage import FileSystemStorage
-
+from django.http import JsonResponse
 
 class ImageInfo(APIView):
     def post(self, request):
@@ -17,14 +17,14 @@ class ImageInfo(APIView):
             fs = FileSystemStorage(location=location)
             filename = fs.save(file.name, file)
             content = {
-                "uploaded_file_name": filename
+                "message": filename+" uploaded successfully!!"
             }
-            return Response(content, status=status.HTTP_201_CREATED)
+            return JsonResponse(content, status=status.HTTP_201_CREATED)
         else:
             content = {
                 "message": "File not found in request"
             }
-            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse(content, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
         username = request.user.username
@@ -34,7 +34,7 @@ class ImageInfo(APIView):
             content.append({
                 "filename": image
             })
-        return Response(content,status=status.HTTP_200_OK)
+        return JsonResponse(content,status=status.HTTP_200_OK,safe=False)
 
 
 class ImageDetail(APIView):
@@ -53,7 +53,7 @@ class ImageDetail(APIView):
             content={
                 "message":"File not found in request"
             }
-            return Response(content,status=status.HTTP_404_NOT_FOUND)
+            return JsonResponse(content,status=status.HTTP_404_NOT_FOUND)
 
     def patch(self, request, img):
         username = request.user.username
@@ -67,19 +67,19 @@ class ImageDetail(APIView):
                 fs = FileSystemStorage(location=location)
                 filename = fs.save(img, file)
                 content = {
-                    "updated_file_name": filename
+                    "message": filename +" updated successfully!!"
                 }
-                return Response(content,status=status.HTTP_200_OK)
+                return JsonResponse(content,status=status.HTTP_200_OK)
             else:
                 content = {
                     "message": "File not found in request"
                 }
-                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+                return JsonResponse(content, status=status.HTTP_400_BAD_REQUEST)
         else:
             content={
                 "message":"File not found in request"
             }
-            return Response(content,status=status.HTTP_404_NOT_FOUND)
+            return JsonResponse(content,status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request, img):
         username = request.user.username
@@ -88,8 +88,11 @@ class ImageDetail(APIView):
             path = os.path.join(settings.MEDIA_ROOT, username, img)
             os.remove(path)
             content={
-                "message":"File deleted successfully."
+                "message": img+" was deleted successfully."
             }
-            return Response(content,status=status.HTTP_204_NO_CONTENT)
+            return JsonResponse(content,status=status.HTTP_200_OK)
         else:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            content = {
+                    "message": "File not found in request"
+                }
+            return JsonResponse(content,status=status.HTTP_404_NOT_FOUND)
