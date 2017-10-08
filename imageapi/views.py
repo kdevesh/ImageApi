@@ -88,7 +88,7 @@ class ImageDetail(APIView):
                 return JsonResponse(content,status=status.HTTP_200_OK)
             else:
                 content = {
-                    "message": "File not found in request"
+                    "message": "Insufficient parameters!!"
                 }
                 return JsonResponse(content, status=status.HTTP_400_BAD_REQUEST)
         else:
