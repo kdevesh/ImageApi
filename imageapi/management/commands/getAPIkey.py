@@ -34,4 +34,4 @@ class Command(BaseCommand):
             os.makedirs(os.path.join(settings.MEDIA_ROOT, username))
         token, created = Token.objects.get_or_create(user=user)
         print ("Access key for " + username + " : ")
-        print (token,settings.BASE_DIR)
+        print (token)
