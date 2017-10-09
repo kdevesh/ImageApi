@@ -36,30 +36,41 @@ class ImageInfo(APIView):
 
     def get(self, request):
         username = request.user.username
-        images = os.listdir(os.path.join(settings.MEDIA_ROOT, username))
-        content = []
-        for image in images:
-            content.append({
-                "filename": image
-            })
-        return JsonResponse(content,status=status.HTTP_200_OK,safe=False)
-
+        if(os.path.exists(os.path.join(settings.MEDIA_ROOT, username))):
+            images = os.listdir(os.path.join(settings.MEDIA_ROOT, username))
+            content = []
+            for image in images:
+                content.append({
+                    "filename": image
+                })
+            return JsonResponse(content,status=status.HTTP_200_OK,safe=False)
+        else:
+            content={
+                "message":"Requested folder media/"+username+" does'nt exists!!"
+            }
+            return JsonResponse(content,status=status.HTTP_404_NOT_FOUND)
 
 class ImageDetail(APIView):
     renderer_classes = (ImageRenderer,JSONRenderer)
 
     def get(self, request, img):
         username = request.user.username
-        images = os.listdir(os.path.join(settings.MEDIA_ROOT, username))
-        if img in images:
-            path = os.path.join(settings.MEDIA_ROOT, username, img)
-            image = open(path, "rb").read()
-            base,ext=os.path.splitext(path)
-            ext=ext[1:]
-            return Response(image, content_type="image/"+ext)
+        if(os.path.exists(os.path.join(settings.MEDIA_ROOT, username))):
+            images = os.listdir(os.path.join(settings.MEDIA_ROOT, username))
+            if img in images:
+                path = os.path.join(settings.MEDIA_ROOT, username, img)
+                image = open(path, "rb").read()
+                base,ext=os.path.splitext(path)
+                ext=ext[1:]
+                return Response(image, content_type="image/"+ext)
+            else:
+                content={
+                    "message":"File not found in request"
+                }
+                return JsonResponse(content,status=status.HTTP_404_NOT_FOUND)
         else:
             content={
-                "message":"File not found in request"
+                "message":"Requested folder media/"+username+" does'nt exists!!"
             }
             return JsonResponse(content,status=status.HTTP_404_NOT_FOUND)
 
@@ -88,7 +99,7 @@ class ImageDetail(APIView):
                 return JsonResponse(content,status=status.HTTP_200_OK)
             else:
                 content = {
-                    "message": "Insufficient parameters!!"
+                    "message": "File not found in request"
                 }
                 return JsonResponse(content, status=status.HTTP_400_BAD_REQUEST)
         else:
