@@ -25,7 +25,7 @@ class ImageInfo(APIView):
             fs = FileSystemStorage(location=location)
             filename = fs.save(file.name, file)
             content = {
-                "message": filename+" uploaded successfully!!"
+                "message": filename+" uploaded successfully!!"+location
             }
             return JsonResponse(content, status=status.HTTP_201_CREATED)
         else:
