@@ -1,29 +1,32 @@
+import os
 from django.conf import settings
+from django.core.files.storage import FileSystemStorage
+from django.http import JsonResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from imageapi.renderers import ImageRenderer
 from rest_framework.renderers import JSONRenderer
-import os
-from django.core.files.storage import FileSystemStorage
-from django.http import JsonResponse
+from imageapi.renderers import ImageRenderer
+
 
 class ImageInfo(APIView):
     def post(self, request):
-        imageformats=["jpeg","JPEG","jpg","JPG","png","PNG","gif","GIF","bmp","BMP","tiff","TIFF"]
+        ''' POST method for creating a new image'''
+        imageformats = ["jpeg", "JPEG", "jpg", "JPG", "png", "PNG",\
+                       "gif", "GIF", "bmp", "BMP", "tiff", "TIFF"]
         if 'file' in request.FILES:
             file = request.FILES['file']
-            base,ext=os.path.splitext(file.name)
-            ext=ext[1:]
-            if( not ext in imageformats):
+            base, ext = os.path.splitext(file.name)
+            ext = ext[1:]
+            if not ext in imageformats:
                 content = {
-                "message": "UnSupported/Invalid image format!!"
+                    "message": "UnSupported/Invalid image format!!"
                 }
                 return JsonResponse(content, status=status.HTTP_400_BAD_REQUEST)
             username = request.user.username
             location = os.path.join(settings.MEDIA_ROOT, username)
-            fs = FileSystemStorage(location=location)
-            filename = fs.save(file.name, file)
+            file_storage = FileSystemStorage(location=location)
+            filename = file_storage.save(file.name, file)
             content = {
                 "message": filename+" uploaded successfully!!"
             }
@@ -35,55 +38,60 @@ class ImageInfo(APIView):
             return JsonResponse(content, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
+        ''' GET method for getting all images linked to the provided access key'''
         username = request.user.username
-        if(os.path.exists(os.path.join(settings.MEDIA_ROOT, username))):
+        if os.path.exists(os.path.join(settings.MEDIA_ROOT, username)):
             images = os.listdir(os.path.join(settings.MEDIA_ROOT, username))
             content = []
             for image in images:
                 content.append({
                     "filename": image
                 })
-            return JsonResponse(content,status=status.HTTP_200_OK,safe=False)
+            return JsonResponse(content, status=status.HTTP_200_OK, safe=False)
         else:
-            content={
-                "message":"Requested folder media/"+username+" does'nt exists!!"
+            content = {
+                "message": "Requested folder media/"+username+" does'nt exists!!"
             }
-            return JsonResponse(content,status=status.HTTP_404_NOT_FOUND)
+            return JsonResponse(content, status=status.HTTP_404_NOT_FOUND)
+
 
 class ImageDetail(APIView):
-    renderer_classes = (ImageRenderer,JSONRenderer)
+    renderer_classes = (ImageRenderer, JSONRenderer)
 
     def get(self, request, img):
+        ''' GET method for displaying the requested image'''
         username = request.user.username
-        if(os.path.exists(os.path.join(settings.MEDIA_ROOT, username))):
+        if os.path.exists(os.path.join(settings.MEDIA_ROOT, username)):
             images = os.listdir(os.path.join(settings.MEDIA_ROOT, username))
             if img in images:
                 path = os.path.join(settings.MEDIA_ROOT, username, img)
                 image = open(path, "rb").read()
-                base,ext=os.path.splitext(path)
-                ext=ext[1:]
+                base, ext = os.path.splitext(path)
+                ext = ext[1:]
                 return Response(image, content_type="image/"+ext)
             else:
-                content={
-                    "message":"File not found in request"
+                content = {
+                    "message": "File not found in request"
                 }
-                return JsonResponse(content,status=status.HTTP_404_NOT_FOUND)
+                return JsonResponse(content, status=status.HTTP_404_NOT_FOUND)
         else:
-            content={
-                "message":"Requested folder media/"+username+" does'nt exists!!"
+            content = {
+                "message": "Requested folder media/"+username+" does'nt exists!!"
             }
-            return JsonResponse(content,status=status.HTTP_404_NOT_FOUND)
+            return JsonResponse(content, status=status.HTTP_404_NOT_FOUND)
 
     def patch(self, request, img):
-        imageformats=["jpeg","JPEG","jpg","JPG","png","PNG","gif","GIF","bmp","BMP","tiff","TIFF"]
+        ''' PATCH method for updating the requested image with the uploaded image'''
+        imageformats = ["jpeg", "JPEG", "jpg", "JPG", "png", "PNG", \
+                       "gif", "GIF", "bmp", "BMP", "tiff", "TIFF"]
         username = request.user.username
         images = os.listdir(os.path.join(settings.MEDIA_ROOT, username))
         if img in images:
             if 'file' in request.FILES:
                 file = request.FILES['file']
-                base,ext=os.path.splitext(file.name)
-                ext=ext[1:]
-                if( not ext in imageformats):
+                base, ext = os.path.splitext(file.name)
+                ext = ext[1:]
+                if not ext in imageformats:
                     content = {
                         "message": "UnSupported/Invalid image format!!"
                     }
@@ -91,35 +99,36 @@ class ImageDetail(APIView):
                 path = os.path.join(settings.MEDIA_ROOT, username, img)
                 os.remove(path)
                 location = os.path.join(settings.MEDIA_ROOT, username)
-                fs = FileSystemStorage(location=location)
-                filename = fs.save(img, file)
+                file_storage = FileSystemStorage(location=location)
+                filename = file_storage.save(img, file)
                 content = {
-                    "message": filename +" updated successfully!!"
+                    "message": filename + " updated successfully!!"
                 }
-                return JsonResponse(content,status=status.HTTP_200_OK)
+                return JsonResponse(content, status=status.HTTP_200_OK)
             else:
                 content = {
                     "message": "File not found in request"
                 }
                 return JsonResponse(content, status=status.HTTP_400_BAD_REQUEST)
         else:
-            content={
-                "message":"File not found in request"
+            content = {
+                "message": "File not found in request"
             }
-            return JsonResponse(content,status=status.HTTP_404_NOT_FOUND)
+            return JsonResponse(content, status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request, img):
+        ''' DELETE method for deleting the requested image '''
         username = request.user.username
         images = os.listdir(os.path.join(settings.MEDIA_ROOT, username))
         if img in images:
             path = os.path.join(settings.MEDIA_ROOT, username, img)
             os.remove(path)
-            content={
+            content = {
                 "message": img+" was deleted successfully."
             }
-            return JsonResponse(content,status=status.HTTP_200_OK)
+            return JsonResponse(content, status=status.HTTP_200_OK)
         else:
             content = {
-                    "message": "File not found in request"
+                "message": "File not found in request"
                 }
-            return JsonResponse(content,status=status.HTTP_404_NOT_FOUND)
+            return JsonResponse(content, status=status.HTTP_404_NOT_FOUND)
