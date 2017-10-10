@@ -2,6 +2,7 @@ from rest_framework.renderers import BaseRenderer
 
 
 class ImageRenderer(BaseRenderer):
+    ''' Class for rendering Images '''
     media_type = 'image/*'
     format = '*'
     charset = None

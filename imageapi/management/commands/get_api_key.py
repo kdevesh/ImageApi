@@ -7,7 +7,7 @@ from rest_framework.authtoken.models import Token
 
 
 class PasswordError(Exception):
-    ''' Password Exception Class for throwing password mismtch error. '''
+    ''' Password Exception Class for throwing password mismatch error. '''
     def __init__(self, message):
         super().__init__(message)
 
@@ -21,18 +21,18 @@ class Command(BaseCommand):
         password = getpass.getpass("Enter password : ")
         try:
             user = User.objects.get(username=username)
-            password_check = user.check_password(raw_password=password)
+            password_check = user.check_password(raw_password=password)                         # Checking whether entered password matches or not.
             if password_check is False:
                 raise PasswordError("You have entered a wrong password.Please try again")
             print("User "+username+" already exists.")
         except User.DoesNotExist:
-            user = User.objects.create_user(username=username, password=password)
+            user = User.objects.create_user(username=username, password=password)               # If user does'nt exist then create one and generate Token
             user.save()
             print("User "+username+" created.")
-        except PasswordError as exception:
+        except PasswordError as exception:                                                      # Catching Password mismatch error
             print(exception)
             return
-        if os.path.exists(os.path.join(settings.MEDIA_ROOT, username)):
+        if os.path.exists(os.path.join(settings.MEDIA_ROOT, username)):                         # Check if media/username folder exists if not exists then create
             pass
         else:
             os.makedirs(os.path.join(settings.MEDIA_ROOT, username))
