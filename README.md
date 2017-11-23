@@ -1,4 +1,4 @@
-# doSelect
+# ImageAPi
 Created a Rest API using Python/Django
 
 Created a service which exposes a RESTful API, that can be used to manage images used by other services. This service can be used to store, update, retrieve and delete images.
